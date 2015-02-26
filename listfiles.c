@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#define PROC_PATH_SIZE 256
+#define LINK_SIZE 4096
+
 int fname_is_num(char * foo){
 	while(isdigit(*(foo++)));
 	return (*(--foo) != 0x00 ) ? 0 : 1 ;
@@ -14,20 +17,20 @@ int nodots(char *foo){
 }
 
 void fd_print(char * procitem, struct dirent * fdent){
-	char fdpath[256];
-	char linkpath[4096];
-	memset(linkpath,0,4096);
+	char fdpath[PROC_PATH_SIZE];
+	char linkpath[LINK_SIZE];
+	memset(linkpath,0,LINK_SIZE);
 	strcpy(fdpath,procitem);
 	strcat(fdpath,"/");
 	strcat(fdpath,fdent->d_name);
 	printf("\t%s",fdent->d_name);
-	if(readlink(fdpath,linkpath,4096)>0)
+	if(readlink(fdpath,linkpath,LINK_SIZE)>0)
 		printf(" -> %s",linkpath);
 	printf("\n");
 }
 
 void dump_fds(char* fullpath,struct dirent * process){
-	char procitem[256];
+	char procitem[PROC_PATH_SIZE];
 	DIR * fds;
 	struct dirent * fdent;
 	strcpy(procitem,fullpath);
@@ -42,13 +45,13 @@ void dump_fds(char* fullpath,struct dirent * process){
 }
 
 void get_cmdline(char * fullpath){
-	char cmdline_path[256],cmdline_str[256];
+	char cmdline_path[PROC_PATH_SIZE],cmdline_str[PROC_PATH_SIZE];
 	FILE * cmdline;
-	memset(cmdline_str,0,256);
+	memset(cmdline_str,0,PROC_PATH_SIZE);
 	strcpy(cmdline_path,fullpath);
 	strcat(cmdline_path,"/cmdline");
 	cmdline = fopen(cmdline_path, "r");
-	if(fread(cmdline_str,1,256,cmdline) > 0)
+	if(fread(cmdline_str,1,PROC_PATH_SIZE,cmdline) > 0)
 		printf(" -> %s",cmdline_str);
 	fclose(cmdline);
 }
@@ -58,7 +61,7 @@ void get_cmdline(char * fullpath){
 
 
 void dump_map_files(char* fullpath,struct dirent * process){
-	char mapdir_path[256];
+	char mapdir_path[PROC_PATH_SIZE];
 	DIR * mapdir;
 	struct dirent *mapdirent;
 	strcpy(mapdir_path,fullpath);
@@ -75,7 +78,7 @@ void dump_map_files(char* fullpath,struct dirent * process){
 void dump_proc_dir(struct dirent * entry){
 	DIR * proc;
 	struct dirent * process;
-	char fullpath[256] = "/proc/";
+	char fullpath[PROC_PATH_SIZE] = "/proc/";
 	strcat(fullpath,entry->d_name);
 	printf("%s",fullpath);
 	get_cmdline(fullpath);
