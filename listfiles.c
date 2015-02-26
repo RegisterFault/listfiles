@@ -16,7 +16,7 @@ int nodots(char *foo){
 	return (*(--foo) != 0x00) ? 0 : 1 ;
 }
 
-void fd_print(char * procitem, struct dirent * fdent){
+void link_print(char * procitem, struct dirent * fdent){
 	char fdpath[PROC_PATH_SIZE];
 	char linkpath[LINK_SIZE];
 	memset(linkpath,0,LINK_SIZE);
@@ -39,7 +39,7 @@ void dump_fds(char* fullpath,struct dirent * process){
 	if((fds = opendir(procitem)) != NULL){
 		while((fdent = readdir(fds))!=NULL)
 			if(fname_is_num(fdent->d_name))
-				fd_print(procitem,fdent);
+				link_print(procitem,fdent);
 		closedir(fds);
 	}
 }
@@ -70,7 +70,7 @@ void dump_map_files(char* fullpath,struct dirent * process){
 	if((mapdir = opendir(mapdir_path))!=NULL){
 		while((mapdirent = readdir(mapdir))!=NULL)
 			if(mapdirent->d_name != NULL &&  nodots(mapdirent->d_name))
-				fd_print(mapdir_path, mapdirent);
+				link_print(mapdir_path, mapdirent);
 		closedir(mapdir);
 	}
 }
